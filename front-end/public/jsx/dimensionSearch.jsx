@@ -16,13 +16,20 @@ class DimensionSearch extends React.Component {
 			thickDimensions: [],
 			selectedOuter: "",
 			selectedInner: "",
-			selectedThick: ""
+			selectedThick: "",
+			filteredDimensions: []
 		}
 		this.setUnit = this.setUnit.bind(this);
 		this.getInnerDiameter = this.getInnerDiameter.bind(this);
 		this.getOuterDiameter = this.getOuterDiameter.bind(this);
 		this.getThickness = this.getThickness.bind(this);
 		this.submitSearch = this.submitSearch.bind(this);
+		
+	}
+
+	componentWillMount() {
+		var me = this;
+		
 	}
 
 	//send data dimension to props sendBearingType in app.jsx
@@ -32,10 +39,13 @@ class DimensionSearch extends React.Component {
 
 	//get data bind from component OuterDiameter
 	getOuterDiameter(val) {
+		console.log('getouter-'+val);
+
 		this.props.sendOuterDiameter(val);
 		this.setState({
 			selectedOuter: val
 		});
+		this.filteredOuter(val);
 	}
 
 	//get data bind from component InnerDiameter
@@ -57,19 +67,37 @@ class DimensionSearch extends React.Component {
 	submitSearch(val) {
 		this.props.sendDimensionSearch();
 	}
-
-	filteredDimensions(props) {
-		//console.log("Received props.dimension: " + JSON.stringify(props.dimension));
+	
+	filteredOuter(valueOuter) {
 		var filteredDimensions = [];
 		var me = this;
-		props.dimension.map(function (value, key) {
+		console.log('valueOuter-' + valueOuter);
+		console.log('props-' + JSON.stringify(me.props.dimension));
+		me.props.dimension.map(function (value, key) {
+			if((valueOuter === "" || value.D.toString() === valueOuter)){
+					filteredDimensions.push(value);
+				}
+		});
+		console.log("filteredDimensions: " + JSON.stringify(filteredDimensions));
+		filteredDimensions.map(function (value, key) {
+			me.state.innerDimensions.push(value.d);
+			me.state.outerDimensions.push(value.D);
+			me.state.thickDimensions.push(value.B);
+		});
+	}
+
+	filteredDimensions(props) {
+		var filteredDimensions = [];
+		var me = this;
+		console.log('props-' + JSON.stringify(props));
+		props.map(function (value, key) {
 			if((me.state.selectedInner === "" || value.d === me.state.selectedInner)
-				&& (me.state.selectedOuter === "" || value.D === me.state.selectedOuter)
+				&& (68.262 === "" || value.D == 68.262)
 				&& (me.state.selectedThick === "" || value.d === me.state.selectedThick)){
 					filteredDimensions.push(value);
 				}
 		});
-		//console.log("filteredDimensions: " + JSON.stringify(filteredDimensions));
+		console.log("filteredDimensions: " + JSON.stringify(filteredDimensions));
 		filteredDimensions.map(function (value, key) {
 			me.state.innerDimensions.push(value.d);
 			me.state.outerDimensions.push(value.D);
@@ -78,6 +106,7 @@ class DimensionSearch extends React.Component {
 	}
 
 	render() {
+		console.log('filteredDimensions-'+JSON.stringify(this.state.filteredDimensions));
 		return (
 			<div>
 				<div className="name-type"></div>
